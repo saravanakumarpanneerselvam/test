@@ -367,3 +367,37 @@ class Ems1ApplicationTests {
 	    }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@Test
+void testDeleteUser_Success() throws UserException {
+    User user = new User();
+    user.setUserId("1");
+    user.setAge(25);
+    user.setContactNumber("1234567890");
+    user.setEmail("test@example.com");
+    user.setGender("Male");
+    user.setName("John Doe");
+    user.setPassword("password123");
+    
+    when(userRepo.findById("1")).thenReturn(Optional.of(user));
+
+    UseruserDto result = userService.deleteUser("1");
+
+    assertNotNull(result);
+    assertEquals(25, result.getAge());
+    assertEquals("1234567890", result.getContactNumber());
+    assertEquals("test@example.com", result.getEmail());
+    assertEquals("Male", result
