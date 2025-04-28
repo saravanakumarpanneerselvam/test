@@ -538,32 +538,62 @@ void testGetAllAttendees_Success() throws AttendeeException {
 
 
 @Test
-    void testGetAllAttendees_Success() throws AttendeeException {
-        // Create a mock Ticket
-        Ticket ticket = Ticket.builder()
-                .ticketId("T123")
-                .bookingDate(LocalDateTime.now())
-                .status("CONFIRMED")
-                .build();
+void testGetAllAttendees_Success() throws AttendeeException {
+    // Create a mock Ticket
+    Ticket ticket = Ticket.builder()
+            .ticketId("T123")
+            .bookingDate(LocalDateTime.now())
+            .status("CONFIRMED")
+            .build();
 
-        // Create a mock Attendee with a list of tickets
-        Attendee attendee = new Attendee();
-        attendee.setUserId("attendee123");
-        attendee.setTickets(List.of(ticket));  // Set the list of tickets
+    // Create a mock Feedback
+    Feedback feedback = Feedback.builder()
+            .feedbackId("F123")
+            .comment("Great event!")
+            .rating(5)
+            .submittedTimestamp(LocalDateTime.now())
+            .event(Event.builder().eventId("E123").build())
+            .build();
 
-        // Mock repository methods
-        when(attendeeRepo.findAll()).thenReturn(List.of(attendee));
-        when(attendeeRepo.findById("attendee123")).thenReturn(Optional.of(attendee));
+    // Create a mock Notification
+    Notification notification = Notification.builder()
+            .event(Event.builder().eventId("E123").build())
+            .message("Event reminder")
+            .sentTimeStamp(LocalDateTime.now())
+            .build();
 
-        // Call the service method
-        List<AttendeeUserDto> attendees = service.getAllAttendees();
+    // Create a mock Attendee with tickets, feedbacks, and notifications
+    Attendee attendee = new Attendee();
+    attendee.setUserId("attendee123");
+    attendee.setTickets(List.of(ticket));  // Set the list of tickets
+    attendee.setFeedbacks(List.of(feedback));  // Set the list of feedbacks
+    attendee.setNotifications(List.of(notification));  // Set the list of notifications
 
-        // Assertions
-        assertNotNull(attendees);
-        assertEquals(1, attendees.size()); // Only one attendee
-        assertEquals("attendee123", attendees.get(0).getUserId());
-        assertNotNull(attendees.get(0).getTickets()); // Tickets should not be null
-        assertEquals(1, attendees.get(0).getTickets().size()); // One ticket attached
-        assertEquals("T123", attendees.get(0).getTickets().get(0).getTicketId()); // Ticket ID should match
-    }
+    // Mock repository methods
+    when(attendeeRepo.findAll()).thenReturn(List.of(attendee));
+    when(attendeeRepo.findById("attendee123")).thenReturn(Optional.of(attendee));
+
+    // Call the service method
+    List<AttendeeUserDto> attendees = service.getAllAttendees();
+
+    // Assertions
+    assertNotNull(attendees);
+    assertEquals(1, attendees.size()); // Only one attendee
+    assertEquals("attendee123", attendees.get(0).getUserId());
+    assertNotNull(attendees.get(0).getTickets()); // Tickets should not be null
+    assertEquals(1, attendees.get(0).getTickets().size()); // One ticket attached
+    assertEquals("T123", attendees.get(0).getTickets().get(0).getTicketId()); // Ticket ID should match
+
+    // Assert feedbacks are correctly mapped
+    assertNotNull(attendees.get(0).getFeedbacks());
+    assertEquals(1, attendees.get(0).getFeedbacks().size());
+    assertEquals("Great event!", attendees.get(0).getFeedbacks().get(0).getComment());
+    assertEquals(5, attendees.get(0).getFeedbacks().get(0).getRating());
+
+    // Assert notifications are correctly mapped
+    assertNotNull(attendees.get(0).getNotifications());
+    assertEquals(1, attendees.get(0).getNotifications().size());
+    assertEquals("Event reminder", attendees.get(0).getNotifications().get(0).getMessage());
+}
+
 
