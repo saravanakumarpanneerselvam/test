@@ -473,3 +473,62 @@ void testGetUser_Success() throws UserException {
     assertEquals("Male", result.getGender());
     assertEquals("password123", result.getPassword());
 }
+
+
+
+
+
+
+
+
+
+
+@Test
+void testGetAllAttendees_Success() throws AttendeeException {
+    // Create Event
+    Event event = new Event();
+    event.setEventId("event123");
+
+    // Create Feedback
+    Feedback feedback = new Feedback();
+    feedback.setComment("Great event");
+    feedback.setRating(5);
+    feedback.setSubmittedTimestamp(LocalDateTime.now());
+    feedback.setFeedbackId("feedback123");
+    feedback.setEvent(event);
+
+    // Create Notification
+    Notification notification = new Notification();
+    notification.setMessage("Reminder for event");
+    notification.setSentTimeStamp(LocalDateTime.now());
+    notification.setEvent(event);
+
+    // Create Attendee
+    Attendee attendee = new Attendee();
+    attendee.setUserId("attendee123");
+    attendee.setAge(30);
+    attendee.setContactNumber("9876543210");
+    attendee.setName("John Doe");
+    attendee.setGender("Male");
+    attendee.setEmail("john@example.com");
+    attendee.setPreferences("Music, Art");
+    attendee.setTickets(2);
+    attendee.setFeedbacks(List.of(feedback));
+    attendee.setNotifications(List.of(notification));
+
+    // Mock Repository
+    when(attendeeRepo.findAll()).thenReturn(List.of(attendee));
+    when(attendeeRepo.findById("attendee123")).thenReturn(Optional.of(attendee));
+
+    // Call Service
+    List<AttendeeUserDto> attendees = service.getAllAttendees();
+
+    // Assertions
+    assertEquals(1, attendees.size());
+    AttendeeUserDto dto = attendees.get(0);
+    assertEquals("attendee123", dto.getUserId());
+    assertEquals("John Doe", dto.getName());
+    assertEquals(1, dto.getFeedbacks().size());
+    assertEquals(1, dto.getNotifications().size());
+}
+
