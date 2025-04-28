@@ -443,3 +443,33 @@ void testGetAllUser_Success() throws UserException {
     assertEquals("User2", result.get(1).getName());
 }
 
+
+
+
+
+
+
+
+@Test
+void testGetUser_Success() throws UserException {
+    User user = new User();
+    user.setUserId("1");
+    user.setName("User");
+    user.setAge(25);
+    user.setContactNumber("1234567890");
+    user.setEmail("user@example.com");
+    user.setGender("Male");
+    user.setPassword("password123");
+
+    when(userRepo.findById("1")).thenReturn(Optional.of(user));
+
+    UseruserDto result = userService.getUser("1");
+
+    assertNotNull(result);
+    assertEquals("User", result.getName());
+    assertEquals(25, result.getAge());
+    assertEquals("1234567890", result.getContactNumber());
+    assertEquals("user@example.com", result.getEmail());
+    assertEquals("Male", result.getGender());
+    assertEquals("password123", result.getPassword());
+}
