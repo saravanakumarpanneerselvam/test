@@ -597,3 +597,43 @@ void testGetAllAttendees_Success() throws AttendeeException {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+    @Test
+    void testDeleteOrganizerById_Success() throws OrganizerException {
+        // Arrange
+        String organizerId = "org123";
+
+        // Create User
+        User user = new User();
+        user.setUserId(organizerId);
+
+        // Create Organizer linked to User
+        Organizer organizer = new Organizer();
+        organizer.setUser(user);
+
+        // Create Event linked to Organizer
+        Event event = new Event();
+        event.setEventId("event123"); // Make sure eventId is set if needed for deleteById
+        event.setOrganizer(organizer);
+
+        // Mock repository methods
+        when(organizerRepo.existsById(organizerId)).thenReturn(true);
+        when(eventRepo.findAll()).thenReturn(List.of(event));
+
+        // Act
+        String response = service.deleteOrganizerById(organizerId);
+
+        // Assert
+        assertEquals("Organizer with ID " + organizerId + " deleted successfully.", response);
+        verify(eventRepo, times(1)).deleteById("event123"); // verify event deleted
+        verify(organizerRepo, times(1)).deleteById(organizerId); // verify organizer deleted
+    }
