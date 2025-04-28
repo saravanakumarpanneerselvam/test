@@ -406,3 +406,40 @@ void testDeleteUser_Success() throws UserException {
     verify(userRepo, times(1)).deleteById("1");
 }
 
+
+
+
+
+
+
+@Test
+void testGetAllUser_Success() throws UserException {
+    User user1 = new User();
+    user1.setUserId("1");
+    user1.setName("User1");
+    user1.setAge(25);
+    user1.setContactNumber("1234567890");
+    user1.setEmail("user1@example.com");
+    user1.setGender("Male");
+    user1.setPassword("password1");
+
+    User user2 = new User();
+    user2.setUserId("2");
+    user2.setName("User2");
+    user2.setAge(30);
+    user2.setContactNumber("0987654321");
+    user2.setEmail("user2@example.com");
+    user2.setGender("Female");
+    user2.setPassword("password2");
+
+    when(userRepo.findAll()).thenReturn(List.of(user1, user2));
+
+    List<UseruserDto> result = userService.getAllUser();
+
+    assertNotNull(result);
+    assertEquals(2, result.size());
+
+    assertEquals("User1", result.get(0).getName());
+    assertEquals("User2", result.get(1).getName());
+}
+
