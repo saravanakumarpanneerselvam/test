@@ -380,7 +380,6 @@ class Ems1ApplicationTests {
 
 
 
-
 @Test
 void testDeleteUser_Success() throws UserException {
     User user = new User();
@@ -400,4 +399,10 @@ void testDeleteUser_Success() throws UserException {
     assertEquals(25, result.getAge());
     assertEquals("1234567890", result.getContactNumber());
     assertEquals("test@example.com", result.getEmail());
-    assertEquals("Male", result
+    assertEquals("Male", result.getGender());
+    assertEquals("John Doe", result.getName());
+    assertEquals("password123", result.getPassword());
+
+    verify(userRepo, times(1)).deleteById("1");
+}
+
