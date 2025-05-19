@@ -1,639 +1,148 @@
-package com.cts;
+<div class="container-fluid">
+  <div class="row vh-100">
+    <!-- Left Side: Login Form -->
+    <div class="col-md-7 d-flex">
+      <form #frm="ngForm" class="w-75">
+        <h2 class="mb-4">
+          Welcome <span style="color: #d7d00c;">Back</span><br>
+          Let's Get <span style="color: #28a745;">Started</span>
+        </h2>
+        
+        <div class="form-group mb-3">
+          <label for="username">Name:</label>
+          <input type="text" #name="ngModel" name="username" [(ngModel)]="username" required class="form-control">
+          <div *ngIf="name.invalid && name.touched" class="alert alert-danger mt-2">Username is required</div>
+        </div>
 
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Test;
-import org.mockito.*;
-import org.springframework.boot.test.context.SpringBootTest;
+        <div class="form-group mb-3">
+          <label for="loginpassword">Password:</label>
+          <input type="password" #password="ngModel" name="loginpassword" [(ngModel)]="loginpassword" required class="form-control">
+          <div *ngIf="password.invalid && password.touched" class="alert alert-danger mt-2">Password is required</div>
+        </div>
 
-import com.cts.ems.dto.*;
-import com.cts.ems.exception.*;
-import com.cts.ems.repository.*;
-import com.cts.ems.service.UserServiceImp;
+        <div class="mb-3">
+          <button class="btn btn-primary me-2" (click)="login()">Login</button>
+        </div>
 
-@SpringBootTest
-class Ems1ApplicationTests {
-	 @InjectMocks
-	    private UserServiceImp userService;
+        <h1>{{msg}}</h1>
+      </form>
+    </div>
 
-	    @Mock
-	    private UserRepository userRepo;
+    <!-- Right Side: Image -->
+   
+<div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
+  <img src="assets/1.jpg" alt="Scene 1" class="img-fluid rounded shadow mb-3">
+  <img src="assets/2.jpg" alt="Scene 2" class="img-fluid rounded shadow mb-3">
+  <img src="assets/3.jpg" alt="Scene 3" class="img-fluid rounded shadow">
+</div>
 
-	    @Mock
-	    private AttendeeRepository attendeeRepo;
 
-	    @Mock
-	    private OrganizerRepository organizerRepo;
+  </div>
+</div>
 
-	    @Mock
-	    private EventRepository eventRepo;
+<router-outlet></router-outlet>
 
-	  
-	    @Test
-	    void testAddUser_Success() {
-	        UseruserDto userDto = UseruserDto.builder()
-	                .age(25)
-	                .contactNumber("9876543210")
-	                .email("test@example.com")
-	                .gender("Male")
-	                .name("Test User")
-	                .password("password")
-	                .build();
 
-	        Attendee attendee = new Attendee();
-	        when(attendeeRepo.save(any(Attendee.class))).thenReturn(attendee);
 
-	        User result = userService.addUser(userDto);
 
-	        assertNotNull(result);
-	        verify(attendeeRepo, times(1)).save(any(Attendee.class));
-	    }
 
-	    // --- Test deleteUser ---
-	    @Test
-	    void testDeleteUser_Success() throws UserException {
-	        User user = new User();
-	        user.setUserId("1");
-	        when(userRepo.findById("1")).thenReturn(Optional.of(user));
 
-	        UseruserDto result = userService.deleteUser("1");
 
-	        assertNotNull(result);
-	        verify(userRepo, times(1)).deleteById("1");
-	    }
-
-	    @Test
-	    void testDeleteUser_NotFound() {
-	        when(userRepo.findById("1")).thenReturn(Optional.empty());
-
-	        assertThrows(UserException.class, () -> userService.deleteUser("1"));
-	    }
-
-	    // --- Test updateUser ---
-	    @Test
-	    void testUpdateUser_Success() throws UserException {
-	        User oldUser = new User();
-	        oldUser.setUserId("1");
-
-	        User newUser = new User();
-	        newUser.setName("New Name");
-	        newUser.setAge(30);
-	        newUser.setEmail("new@email.com");
-	        newUser.setContactNumber("9999999999");
-	        newUser.setGender("Male");
-	        newUser.setPassword("newpass");
-
-	        when(userRepo.findById("1")).thenReturn(Optional.of(oldUser));
-	        when(userRepo.save(any(User.class))).thenReturn(oldUser);
-
-	        User result = userService.updateUser("1", newUser);
-
-	        assertNotNull(result);
-	        assertEquals("New Name", result.getName());
-	    }
-
-	    @Test
-	    void testUpdateUser_NotFound() {
-	        when(userRepo.findById("1")).thenReturn(Optional.empty());
-
-	        assertThrows(UserException.class, () -> userService.updateUser("1", new User()));
-	    }
-
-	    // --- Test login ---
-	    @Test
-	    void testLogin_Success() throws UserException {
-	        User user = new User();
-	        user.setName("username");
-	        user.setPassword("pass");
-
-	        when(userRepo.findAll()).thenReturn(List.of(user));
-
-	        LoginUserDto login = new LoginUserDto();
-	        login.setName("username");
-	        login.setPassword("pass");
-
-	        User result = userService.login(login);
-
-	        assertNotNull(result);
-	        assertEquals("username", result.getName());
-	    }
-
-	    @Test
-	    void testLogin_Failure() {
-	        when(userRepo.findAll()).thenReturn(Collections.emptyList());
-
-	        LoginUserDto login = new LoginUserDto();
-	        login.setName("wrong");
-	        login.setPassword("wrong");
-
-	        assertThrows(UserException.class, () -> userService.login(login));
-	    }
-
-	    // --- Test getUser ---
-	    @Test
-	    void testGetUser_Success() throws UserException {
-	        User user = new User();
-	        user.setUserId("1");
-	        user.setName("User");
-
-	        when(userRepo.findById("1")).thenReturn(Optional.of(user));
-
-	        UseruserDto result = userService.getUser("1");
-
-	        assertNotNull(result);
-	        assertEquals("User", result.getName());
-	    }
-
-	    @Test
-	    void testGetUser_NotFound() {
-	        when(userRepo.findById("1")).thenReturn(Optional.empty());
-
-	        assertThrows(UserException.class, () -> userService.getUser("1"));
-	    }
-
-	    // --- Test getAllUser ---
-	    @Test
-	    void testGetAllUser_Success() {
-	        User user1 = new User();
-	        user1.setUserId("1");
-	        user1.setName("User1");
-
-	        User user2 = new User();
-	        user2.setUserId("2");
-	        user2.setName("User2");
-
-	        when(userRepo.findAll()).thenReturn(List.of(user1, user2));
-
-	        List<UseruserDto> result = userService.getAllUser();
-
-	        assertEquals(2, result.size());
-	    }
-
-	    // --- Test forgotPassword ---
-	    @Test
-	    void testForgotPassword_Success() throws UserException {
-	        User user = new User();
-	        user.setUserId("1");
-	        user.setPassword("oldpass");
-
-	        when(userRepo.findById("1")).thenReturn(Optional.of(user));
-	        when(userRepo.save(any(User.class))).thenReturn(user);
-
-	        User result = userService.forgotPassword("1", "newpass");
-
-	        assertNotNull(result);
-	        assertEquals("newpass", result.getPassword());
-	    }
-
-	    @Test
-	    void testForgotPassword_UserNotFound() {
-	        when(userRepo.findById("1")).thenReturn(Optional.empty());
-
-	        assertThrows(UserException.class, () -> userService.forgotPassword("1", "newpass"));
-	    }
-
-	    // --- Test updateName ---
-	    @Test
-	    void testUpdateName_Success() throws UserException {
-	        User user = new User();
-	        user.setUserId("1");
-	        user.setName("Old Name");
-
-	        when(userRepo.findById("1")).thenReturn(Optional.of(user));
-	        when(userRepo.save(any(User.class))).thenReturn(user);
-
-	        User result = userService.updateName("1", "New Name");
-
-	        assertNotNull(result);
-	        assertEquals("New Name", result.getName());
-	    }
-
-	    @Test
-	    void testUpdateName_UserNotFound() {
-	        when(userRepo.findById("1")).thenReturn(Optional.empty());
-
-	        assertThrows(UserException.class, () -> userService.updateName("1", "New Name"));
-	    }
-	    @Test
-	    void testGetAttendeeById_Success() throws AttendeeException {
-	        String attendeeId = "attendee123";
-
-	        Attendee attendee = new Attendee();
-	        attendee.setUserId(attendeeId);
-	        attendee.setAge(25);
-	        attendee.setContactNumber("1234567890");
-	        attendee.setName("John Doe");
-	        attendee.setGender("Male");
-	        attendee.setEmail("john@example.com");
-	        attendee.setPreferences("Music");
-
-	        Feedback feedback = new Feedback();
-	        feedback.setComment("Great Event!");
-	        feedback.setRating(5);
-	        feedback.setSubmittedTimestamp(LocalDateTime.now());
-	        Event event = new Event();
-	        event.setEventId("event123");
-	        feedback.setEvent(event);
-	        attendee.setFeedbacks(List.of(feedback));
-
-	        Notification notification = new Notification();
-	        notification.setMessage("Event Starting Soon!");
-	        notification.setSentTimeStamp(LocalDateTime.now());
-	        notification.setEvent(event);
-	        attendee.setNotifications(List.of(notification));
-
-	        when(attendeeRepo.existsById(attendeeId)).thenReturn(true);
-	        when(attendeeRepo.findById(attendeeId)).thenReturn(Optional.of(attendee));
-
-	        AttendeeUserDto result = service.getAttendeeById(attendeeId);
-
-	        assertNotNull(result);
-	        assertEquals("John Doe", result.getName());
-	        assertEquals(1, result.getFeedbacks().size());
-	        assertEquals(1, result.getNotifications().size());
-	    }
-
-	    @Test
-	    void testGetAllAttendees_Success() throws AttendeeException {
-	        Attendee attendee = new Attendee();
-	        attendee.setUserId("attendee123");
-
-	        when(attendeeRepo.findAll()).thenReturn(List.of(attendee));
-	        when(attendeeRepo.findById("attendee123")).thenReturn(Optional.of(attendee));
-
-	        List<AttendeeUserDto> attendees = service.getAllAttendees();
-
-	        assertEquals(1, attendees.size());
-	    }
-
-	    @Test
-	    void testGetOrganizerById_Success() throws OrganizerException {
-	        String organizerId = "org123";
-	        Organizer organizer = new Organizer();
-	        User user = new User();
-	        user.setUserId(organizerId);
-	        user.setName("Organizer Name");
-	        user.setEmail("org@example.com");
-	        user.setGender("Male");
-	        user.setAge(30);
-	        user.setContactNumber("9876543210");
-
-	        organizer.setUser(user);
-
-	        Event event = new Event();
-	        event.setEventId("event001");
-	        event.setName("Music Concert");
-	        event.setCategory("Music");
-	        event.setLocation("New York");
-	        event.setRegDate(LocalDate.now());
-
-	        organizer.setEventsOrganized(List.of(event));
-
-	        when(organizerRepo.existsById(organizerId)).thenReturn(true);
-	        when(organizerRepo.findById(organizerId)).thenReturn(Optional.of(organizer));
-
-	        OrganizerUserDto result = service.getOrganizerById(organizerId);
-
-	        assertNotNull(result);
-	        assertEquals("Organizer Name", result.getName());
-	        assertEquals(1, result.getEvents().size());
-	    }
-
-	    @Test
-	    void testDeleteOrganizerById_Success() throws OrganizerException {
-	        String organizerId = "org123";
-
-	        Event event = new Event();
-	        Organizer organizer = new Organizer();
-	        User user = new User();
-	        user.setUserId(organizerId);
-	        organizer.setUser(user);
-	        event.setOrganizer(user);
-
-	        when(organizerRepo.existsById(organizerId)).thenReturn(true);
-	        when(eventRepo.findAll()).thenReturn(List.of(event));
-
-	        String response = service.deleteOrganizerById(organizerId);
-
-	        assertEquals("Organizer with ID " + organizerId + " deleted successfully.", response);
-	        verify(organizerRepo, times(1)).deleteById(organizerId);
-	    }
-
-	    @Test
-	    void testAddOrganizer_Success() {
-	        String userId = "user123";
-
-	        User user = new User();
-	        user.setUserId(userId);
-
-	        when(userRepo.findById(userId)).thenReturn(Optional.of(user));
-	        when(organizerRepo.save(any(Organizer.class))).thenAnswer(i -> i.getArgument(0));
-
-	        Organizer organizer = service.addOrganizer(userId);
-
-	        assertNotNull(organizer);
-	        assertEquals(userId, organizer.getUser().getUserId());
-	    }
-
-	    @Test
-	    void testGetAllPayments_Success() throws OrganizerException {
-	        String organizerId = "org123";
-	        String eventId = "event123";
-
-	        Organizer organizer = new Organizer();
-	        Event event = new Event();
-	        event.setEventId(eventId);
-
-	        Payment payment = new Payment();
-	        payment.setAmount(1000.0);
-	        payment.setPaymentMethod("Credit Card");
-	        payment.setPaymentId("pay123");
-	        payment.setPaymentStatus("SUCCESS");
-	        payment.setTransactionId("txn123");
-	        payment.setPaymentDate(LocalDate.now());
-
-	        Ticket ticket = new Ticket();
-	        ticket.setPayment(payment);
-
-	        event.setTickets(List.of(ticket));
-	        organizer.setEventsOrganized(List.of(event));
-
-	        when(organizerRepo.existsById(organizerId)).thenReturn(true);
-	        when(organizerRepo.findById(organizerId)).thenReturn(Optional.of(organizer));
-
-	        List<PaymentUserDto> payments = service.getAllPayments(organizerId, eventId);
-
-	        assertEquals(1, payments.size());
-	        assertEquals("Credit Card", payments.get(0).getPaymentMethod());
-	    }
-
+/* Center the form content */
+.text-center {
+    text-align: center;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-@Test
-void testDeleteUser_Success() throws UserException {
-    User user = new User();
-    user.setUserId("1");
-    user.setAge(25);
-    user.setContactNumber("1234567890");
-    user.setEmail("test@example.com");
-    user.setGender("Male");
-    user.setName("John Doe");
-    user.setPassword("password123");
+/* Reduce the width of the form */
+form {
+    width: 450px;
+    height: 600px;
+    margin: auto;
+    font-size:large;
     
-    when(userRepo.findById("1")).thenReturn(Optional.of(user));
-
-    UseruserDto result = userService.deleteUser("1");
-
-    assertNotNull(result);
-    assertEquals(25, result.getAge());
-    assertEquals("1234567890", result.getContactNumber());
-    assertEquals("test@example.com", result.getEmail());
-    assertEquals("Male", result.getGender());
-    assertEquals("John Doe", result.getName());
-    assertEquals("password123", result.getPassword());
-
-    verify(userRepo, times(1)).deleteById("1");
 }
 
-
-
-
-
-
-
-@Test
-void testGetAllUser_Success() throws UserException {
-    User user1 = new User();
-    user1.setUserId("1");
-    user1.setName("User1");
-    user1.setAge(25);
-    user1.setContactNumber("1234567890");
-    user1.setEmail("user1@example.com");
-    user1.setGender("Male");
-    user1.setPassword("password1");
-
-    User user2 = new User();
-    user2.setUserId("2");
-    user2.setName("User2");
-    user2.setAge(30);
-    user2.setContactNumber("0987654321");
-    user2.setEmail("user2@example.com");
-    user2.setGender("Female");
-    user2.setPassword("password2");
-
-    when(userRepo.findAll()).thenReturn(List.of(user1, user2));
-
-    List<UseruserDto> result = userService.getAllUser();
-
-    assertNotNull(result);
-    assertEquals(2, result.size());
-
-    assertEquals("User1", result.get(0).getName());
-    assertEquals("User2", result.get(1).getName());
+form .label{
+    font-size: 10px;
+}
+/* Style the heading with colored words */
+h2 span {
+    color: #cda319; /* Blue color for "Back" */
 }
 
-
-
-
-
-
-
-
-@Test
-void testGetUser_Success() throws UserException {
-    User user = new User();
-    user.setUserId("1");
-    user.setName("User");
-    user.setAge(25);
-    user.setContactNumber("1234567890");
-    user.setEmail("user@example.com");
-    user.setGender("Male");
-    user.setPassword("password123");
-
-    when(userRepo.findById("1")).thenReturn(Optional.of(user));
-
-    UseruserDto result = userService.getUser("1");
-
-    assertNotNull(result);
-    assertEquals("User", result.getName());
-    assertEquals(25, result.getAge());
-    assertEquals("1234567890", result.getContactNumber());
-    assertEquals("user@example.com", result.getEmail());
-    assertEquals("Male", result.getGender());
-    assertEquals("password123", result.getPassword());
+h2 span:last-child {
+    color: #28a745; /* Green color for "Started" */
 }
 
-
-
-
-
-
-
-
-
-
-@Test
-void testGetAllAttendees_Success() throws AttendeeException {
-    // Create Event
-    Event event = new Event();
-    event.setEventId("event123");
-
-    // Create Feedback
-    Feedback feedback = new Feedback();
-    feedback.setComment("Great event");
-    feedback.setRating(5);
-    feedback.setSubmittedTimestamp(LocalDateTime.now());
-    feedback.setFeedbackId("feedback123");
-    feedback.setEvent(event);
-
-    // Create Notification
-    Notification notification = new Notification();
-    notification.setMessage("Reminder for event");
-    notification.setSentTimeStamp(LocalDateTime.now());
-    notification.setEvent(event);
-
-    // Create Attendee
-    Attendee attendee = new Attendee();
-    attendee.setUserId("attendee123");
-    attendee.setAge(30);
-    attendee.setContactNumber("9876543210");
-    attendee.setName("John Doe");
-    attendee.setGender("Male");
-    attendee.setEmail("john@example.com");
-    attendee.setPreferences("Music, Art");
-    attendee.setTickets(2);
-    attendee.setFeedbacks(List.of(feedback));
-    attendee.setNotifications(List.of(notification));
-
-    // Mock Repository
-    when(attendeeRepo.findAll()).thenReturn(List.of(attendee));
-    when(attendeeRepo.findById("attendee123")).thenReturn(Optional.of(attendee));
-
-    // Call Service
-    List<AttendeeUserDto> attendees = service.getAllAttendees();
-
-    // Assertions
-    assertEquals(1, attendees.size());
-    AttendeeUserDto dto = attendees.get(0);
-    assertEquals("attendee123", dto.getUserId());
-    assertEquals("John Doe", dto.getName());
-    assertEquals(1, dto.getFeedbacks().size());
-    assertEquals(1, dto.getNotifications().size());
+/* Reduce the size of input fields and buttons */
+.form-control-sm {
+    font-size: 0.975rem;
+    padding: 0.25rem 0.5rem;
 }
 
-
-
-
-
-
-@Test
-void testGetAllAttendees_Success() throws AttendeeException {
-    // Create a mock Ticket
-    Ticket ticket = Ticket.builder()
-            .ticketId("T123")
-            .bookingDate(LocalDateTime.now())
-            .status("CONFIRMED")
-            .build();
-
-    // Create a mock Feedback
-    Feedback feedback = Feedback.builder()
-            .feedbackId("F123")
-            .comment("Great event!")
-            .rating(5)
-            .submittedTimestamp(LocalDateTime.now())
-            .event(Event.builder().eventId("E123").build())
-            .build();
-
-    // Create a mock Notification
-    Notification notification = Notification.builder()
-            .event(Event.builder().eventId("E123").build())
-            .message("Event reminder")
-            .sentTimeStamp(LocalDateTime.now())
-            .build();
-
-    // Create a mock Attendee with tickets, feedbacks, and notifications
-    Attendee attendee = new Attendee();
-    attendee.setUserId("attendee123");
-    attendee.setTickets(List.of(ticket));  // Set the list of tickets
-    attendee.setFeedbacks(List.of(feedback));  // Set the list of feedbacks
-    attendee.setNotifications(List.of(notification));  // Set the list of notifications
-
-    // Mock repository methods
-    when(attendeeRepo.findAll()).thenReturn(List.of(attendee));
-    when(attendeeRepo.findById("attendee123")).thenReturn(Optional.of(attendee));
-
-    // Call the service method
-    List<AttendeeUserDto> attendees = service.getAllAttendees();
-
-    // Assertions
-    assertNotNull(attendees);
-    assertEquals(1, attendees.size()); // Only one attendee
-    assertEquals("attendee123", attendees.get(0).getUserId());
-    assertNotNull(attendees.get(0).getTickets()); // Tickets should not be null
-    assertEquals(1, attendees.get(0).getTickets().size()); // One ticket attached
-    assertEquals("T123", attendees.get(0).getTickets().get(0).getTicketId()); // Ticket ID should match
-
-    // Assert feedbacks are correctly mapped
-    assertNotNull(attendees.get(0).getFeedbacks());
-    assertEquals(1, attendees.get(0).getFeedbacks().size());
-    assertEquals("Great event!", attendees.get(0).getFeedbacks().get(0).getComment());
-    assertEquals(5, attendees.get(0).getFeedbacks().get(0).getRating());
-
-    // Assert notifications are correctly mapped
-    assertNotNull(attendees.get(0).getNotifications());
-    assertEquals(1, attendees.get(0).getNotifications().size());
-    assertEquals("Event reminder", attendees.get(0).getNotifications().get(0).getMessage());
+.btn-sm {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+}
+.btn-primary{
+    background-color: rgb(55, 125, 34);
+}
+.mb-4{
+    
+    font-family:Impact, fantasy;
+}
+.col-md-6{
+    display: flex;
+   
 }
 
+/* Center the form vertically and horizontally */
+.d-flex {
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+}
+
+/* Style the alert messages */
+.alert {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+}
+
+/* Style the image */
+.img-fluid {
+    max-width: 80%;
+    max-height: 60%;
+    display: flex;
+    margin-top: 10%;
+}
+
+body, html {
+    height: 100%;
+    margin: 0;
+  }
 
 
+  
+  .row {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    background-image: url('src\assets\bk.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    animation: change 10s infinite ease-in-out;
+}
 
+.col-md-4 img {
+    width: 100%;
+    max-height: 30%;
+    object-fit: cover;
+  }
+  
+  
+  .col-md-4 img:hover {
+    transform: scale(1.03);
+  }
 
-
-
-
-
-
-
-
-    @Test
-    void testDeleteOrganizerById_Success() throws OrganizerException {
-        // Arrange
-        String organizerId = "org123";
-
-        // Create User
-        User user = new User();
-        user.setUserId(organizerId);
-
-        // Create Organizer linked to User
-        Organizer organizer = new Organizer();
-        organizer.setUser(user);
-
-        // Create Event linked to Organizer
-        Event event = new Event();
-        event.setEventId("event123"); // Make sure eventId is set if needed for deleteById
-        event.setOrganizer(organizer);
-
-        // Mock repository methods
-        when(organizerRepo.existsById(organizerId)).thenReturn(true);
-        when(eventRepo.findAll()).thenReturn(List.of(event));
-
-        // Act
-        String response = service.deleteOrganizerById(organizerId);
-
-        // Assert
-        assertEquals("Organizer with ID " + organizerId + " deleted successfully.", response);
-        verify(eventRepo, times(1)).deleteById("event123"); // verify event deleted
-        verify(organizerRepo, times(1)).deleteById(organizerId); // verify organizer deleted
-    }
