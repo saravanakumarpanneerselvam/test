@@ -1,0 +1,7 @@
+Fine-Tune Gemma 3n:
+Use a labeled dataset like the Moroccan_Darija_Offensive_Language_Detection_Dataset.
+Apply LoRA fine-tuning (Low-Rank Adaptation) for efficient training on limited hardware
+Use frameworks like PyTorch or Keras (Gemma supports both).
+Export to TensorFlow Lite:
+After fine-tuning, convert the model using TensorFlow tools (tf.lite.TFLiteConverter).
+Gemma 3n is designed to be compatible with TFLite, making this step feasible.\
